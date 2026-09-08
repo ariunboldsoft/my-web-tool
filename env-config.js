@@ -1,0 +1,6 @@
+const ENV_CONFIG = {
+  MAX_FREE_CHILDREN: 3,
+  MAX_FOCUS_AREAS: 4,
+  APP_VERSION: "1.0.0",
+  DEBUG_MODE: false
+};
