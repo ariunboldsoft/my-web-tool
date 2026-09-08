@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <title>Утасны дугаараар баталгаажуулах</title>
+  <style>
+    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f6f8; }
+    .auth-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+    input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; text-align: center; letter-spacing: 2px; }
+    button { background: #4a90e2; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #357abd; }
+    .error { color: #d9534f; font-size: 14px; margin-top: 10px; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <h2>Утасны дугаараа оруулна уу</h2>
+    <p>Профайл руу нэвтрэхийн тулд 8 оронтой утасны дугаараа бичнэ үү.</p>
+    <input type="text" id="phone" maxlength="8" placeholder="Жишээ: 99112233">
+    <button onclick="verifyPhone()">Нэвтрэх</button>
+    <div id="error-msg" class="error">Бүртгэлгүй эсвэл буруу дугаар байна.</div>
+  </div>
+
+  <script>
+    // List of authorized 8-digit phone numbers
+    const authorizedNumbers = [
+      "99112233",
+      "88114455",
+      "95001122"
+      // Add more numbers here as needed
+    ];
+
+    function verifyPhone() {
+      const enteredPhone = document.getElementById('phone').value.trim();
+
+      // Check if the entered 8-digit number exists in the allowed list
+      if (authorizedNumbers.includes(enteredPhone)) {
+        // Save authorization state and the specific phone number
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userPhone', enteredPhone);
+        
+        // Redirect to the main application
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('error-msg').style.display = 'block';
+      }
+    }
+  </script>
+
+</body>
+</html>
