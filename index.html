@@ -2,16 +2,18 @@
 <html lang="mn">
 <head>
 <script>
-    if (localStorage.getItem('isAuthenticated') !== 'true') {
+   if (localStorage.getItem('isAuthenticated') !== 'true' || !localStorage.getItem('currentUserPhone')) {
       window.location.href = 'auth.html';
     }
     const currentPhone = localStorage.getItem('currentUserPhone');
   </script>
 <meta charset="UTF-8">
-  <title>Өсөхүй - Профайл</title>
-    <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ӨСӨХҮЙ | Хүүхдийн Хөгжлийн Хянагч</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
 <div class="app">
     <div class="user-header">
       <div>
