@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="mn">
 <head>
   <script>
@@ -13,36 +14,69 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-  <div class="app">
-    <div class="user-header">
-      <div>
-        <h3>Утас: <span id="display-phone"></span></h3>
-      </div>
-      <button class="logout-btn" onclick="logout()">Гарах</button>
-    </div>
 
-    <!-- Main Dashboard container populated by app.js -->
-    <div class="dashboard">
-      <h2>Хүүхдийн профайл ба бүртгэл</h2>
-      
-      <div class="form-group">
-        <label for="childName">Хүүхдийн нэр:</label>
-        <input type="text" id="childName" placeholder="Жишээ: Тэмүүлэн">
+  <div class="app-container">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="logo-icon">🌱</span>
+        <div>
+          <h1>Үр мину</h1>
+          <span class="brand-sub">Өсөхүй</span>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="childAge">Нас / Төрсөн огноо:</label>
-        <input type="text" id="childAge" placeholder="Жишээ: 5 настай">
+      <div class="header-controls">
+        <!-- Child Selector / Profile Dropdown Area -->
+        <div class="child-selector-wrap">
+          <select id="childSelector" onchange="switchActiveChild()">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <button class="add-child-btn" onclick="openAddChildModal()">+ Хүүхэд нэмэх</button>
+        <button class="logout-btn" onclick="logout()">Гарах (<span id="display-phone"></span>)</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active">Нүүр</button>
+      <button class="tab-btn">Зорилтууд</button>
+      <button class="tab-btn">Амжилтууд</button>
+      <button class="tab-btn">Хяналтын самбар</button>
+      <button class="tab-btn">Үндсэн суурь</button>
+      <button class="tab-btn">Хүүхдийн профайл</button>
+    </nav>
+
+    <!-- Main Workspace Content -->
+    <main class="main-content">
+      <div class="card-banner">
+        <span class="badge">Энэ долоо хоног</span>
+        <h2>☀️ Гэр бүлийн өсөлтийн хэмжүүр</h2>
+        <p>Утга учиртай зорилго болон амжилтуудыг хамтдаа бүтээгээрэй.</p>
       </div>
 
-      <div class="form-group">
-        <label for="childNotes">Хөгжлийн тэмдэглэл:</label>
-        <textarea id="childNotes" rows="5" placeholder="Энд хүүхдийнхээ хөгжил, явцын талаар бичнэ үү..."></textarea>
-      </div>
+      <!-- Active Child Details & Tracking Form -->
+      <div class="dashboard-panel" id="child-editor-panel">
+        <h3 id="panel-title">Хүүхдийн мэдээлэл</h3>
+        
+        <div class="form-group">
+          <label>Хүүхдийн нэр:</label>
+          <input type="text" id="activeChildName" placeholder="Жишээ: Тэмүүлэн" oninput="autoSaveCurrentChild()">
+        </div>
 
-      <button onclick="saveUserData(false)">Хадгалах</button>
-    </div>
+        <div class="form-group">
+          <label>Нас / Төрсөн огноо:</label>
+          <input type="text" id="activeChildAge" placeholder="Жишээ: 5 настай" oninput="autoSaveCurrentChild()">
+        </div>
+
+        <div class="form-group">
+          <label>Хөгжлийн тэмдэглэл:</label>
+          <textarea id="activeChildNotes" rows="4" placeholder="Хөгжлийн явц..." oninput="autoSaveCurrentChild()"></textarea>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script src="app.js"></script>
