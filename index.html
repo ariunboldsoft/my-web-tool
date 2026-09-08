@@ -77,7 +77,7 @@ label{display:block;font-weight:800;margin:10px 0 6px}input,select,textarea{widt
   <div class="splashTree">🌳</div>
   <h1>Бяцхан Мод</h1>
   <p>Хүүхдийнхээ өсөлт хөгжилтөд алхам алхмаар тусацгаая.</p>
-  <button class="primary" onclick="initApp()">Эхлэх</button>
+  <button class="primary" onclick="enterApp()">Эхлэх</button>
  </div>
 </div>
 
@@ -198,74 +198,91 @@ label{display:block;font-weight:800;margin:10px 0 6px}input,select,textarea{widt
 </div>
 <div id="toast" class="toast"></div>
 
-<script>
-let categories = [];
-let ageData = {};
-let goalBank = {};
-let focusAreas = [];
-let MAX_FREE_CHILDREN = 3;
-let MAX_FOCUS_AREAS = 4;
+<!-- Load the separated data file -->
+<script src="data.js"></script>
 
+<script>
 const memoryStore={};
 const storage={
- getItem(key){try{return localStorage.getItem(key)}catch(e){return memoryStore[key]||null}},
- setItem(key,val){try{localStorage.setItem(key,val)}catch(e){memoryStore[key]=val}},
- removeItem(key){try{localStorage.removeItem(key)}catch(e){delete memoryStore[key]}}
+ getItem(key){
+  try{return localStorage.getItem(key)}catch(e){return Object.prototype.hasOwnProperty.call(memoryStore,key)?memoryStore[key]:null}
+ },
+ setItem(key,val){
+  try{localStorage.setItem(key,val)}catch(e){memoryStore[key]=val}
+ },
+ removeItem(key){
+  try{localStorage.removeItem(key)}catch(e){delete memoryStore[key]}
+ }
 };
 
-async function initApp() {
-  try {
-    const res = await fetch('/api/data');
-    const serverData = await res.json();
-    categories = serverData.categories;
-    ageData = serverData.ageData;
-    goalBank = serverData.goalBank;
-    focusAreas = serverData.focusAreas;
-  } catch(e) {
-    console.error("Failed to load secure server data", e);
-  }
+function getFocusCats(){
+ const favCats=new Set();
+ if(child&&child.focusAreas)child.focusAreas.forEach(name=>{
+  const fa=focusAreas.find(f=>f.name===name);
+  if(fa)fa.cats.forEach(c=>favCats.add(c));
+ });
+ return favCats;
+}
 
-  document.getElementById("splash").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-  loadAppState();
-  updateChildSelector();
-  if(children.length === 0){
-   document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
-   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-   openAddChildFlow();
-  } else render();
+function pickBankGoal(catIndex,age,excludeTexts){
+ const pool=(goalBank[catIndex]||[]).filter(x=>age>=x.min&&age<=x.max&&!excludeTexts.has(x.t));
+ if(!pool.length)return null;
+ return pool[Math.floor(Math.random()*pool.length)].t;
+}
+
+function autoRefillGoal(catIndex){
+ if(!child)return;
+ if(!getFocusCats().has(catIndex))return;
+ const existingTexts=new Set(goals.map(g=>g.text).concat(achievements.map(a=>a.text)));
+ const nextText=pickBankGoal(catIndex,child.age,existingTexts);
+ if(!nextText)return;
+ goals.unshift({id:Date.now(),text:nextText,cat:catIndex,freq:"Долоо хоног бүр",done:false,cycle:getWeekKey()});
+ saveChildData();
+ toast(`Энэхүү анхаарал хандуулах чиглэлийг хөгжүүлэхийн тулд шинэ зорилго нэмэгдлээ!`);
+}
+
+function getAgeData(ageVal){
+ let age=Math.max(5,Math.min(16,+ageVal||10));
+ return ageData[age]||ageData[10];
 }
 
 let children, activeChildId, child, goals, achievements, cycle;
+try{
+ children = JSON.parse(storage.getItem("ltChildren") || "null");
+ activeChildId = storage.getItem("ltActiveChildId") || null;
 
-function loadAppState() {
-  try{
-   children = JSON.parse(storage.getItem("ltChildren") || "null");
-   activeChildId = storage.getItem("ltActiveChildId") || null;
-
-   if(!children) {
-     let oldChild = JSON.parse(storage.getItem("ltChild") || "null");
-     if(oldChild) {
-       children = [{id: 'c_' + Date.now(), name: oldChild.name, age: oldChild.age, gender: oldChild.gender, focusAreas: []}];
-       activeChildId = children[0].id;
-     } else {
-       children = [];
-       activeChildId = null;
-     }
-     saveAllChildren();
+ if(!children) {
+   let oldChild = JSON.parse(storage.getItem("ltChild") || "null");
+   if(oldChild) {
+     children = [{id: 'c_' + Date.now(), name: oldChild.name, age: oldChild.age, gender: oldChild.gender, focusAreas: []}];
+     activeChildId = children[0].id;
+   } else {
+     children = [];
+     activeChildId = null;
    }
+   saveAllChildren();
+ }
 
-   child = children.find(c => c.id === activeChildId) || children[0] || null;
-   goals = child ? JSON.parse(storage.getItem(`ltGoals_${child.id}`) || "[]") : [];
-   achievements = child ? JSON.parse(storage.getItem(`ltAchievements_${child.id}`) || "[]") : [];
-   cycle = child ? (storage.getItem(`ltCycle_${child.id}`) || getWeekKey()) : getWeekKey();
-  }catch(e){
-   children = [];
-   activeChildId = null; child = null; goals = []; achievements = []; cycle = getWeekKey();
-  }
+ child = children.find(c => c.id === activeChildId) || children[0] || null;
+ goals = child ? JSON.parse(storage.getItem(`ltGoals_${child.id}`) || "[]") : [];
+ achievements = child ? JSON.parse(storage.getItem(`ltAchievements_${child.id}`) || "[]") : [];
+ cycle = child ? (storage.getItem(`ltCycle_${child.id}`) || getWeekKey()) : getWeekKey();
+}catch(e){
+ children = Array.isArray(children) ? children : [];
+ activeChildId = null; child = null; goals = []; achievements = []; cycle = getWeekKey();
 }
 
 function getWeekKey(){const d=new Date();const onejan=new Date(d.getFullYear(),0,1);return d.getFullYear()+"-"+Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7)}
+
+function enterApp(){
+ document.getElementById("splash").classList.add("hidden");document.getElementById("app").classList.remove("hidden");
+ updateChildSelector();
+ if(children.length === 0){
+  document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  openAddChildFlow();
+ } else render();
+}
 
 function updateChildSelector(){
  const sel = document.getElementById("childSelect");
@@ -479,37 +496,6 @@ function fillSelects(){
 }
 function categoryIndex(name){return categories.findIndex(c=>c.name===name)}
 
-function getFocusCats(){
- const favCats=new Set();
- if(child&&child.focusAreas)child.focusAreas.forEach(name=>{
-  const fa=focusAreas.find(f=>f.name===name);
-  if(fa)fa.cats.forEach(c=>favCats.add(c));
- });
- return favCats;
-}
-
-function pickBankGoal(catIndex,age,excludeTexts){
- const pool=(goalBank[catIndex]||[]).filter(x=>age>=x.min&&age<=x.max&&!excludeTexts.has(x.t));
- if(!pool.length)return null;
- return pool[Math.floor(Math.random()*pool.length)].t;
-}
-
-function autoRefillGoal(catIndex){
- if(!child)return;
- if(!getFocusCats().has(catIndex))return;
- const existingTexts=new Set(goals.map(g=>g.text).concat(achievements.map(a=>a.text)));
- const nextText=pickBankGoal(catIndex,child.age,existingTexts);
- if(!nextText)return;
- goals.unshift({id:Date.now(),text:nextText,cat:catIndex,freq:"Долоо хоног бүр",done:false,cycle:getWeekKey()});
- saveChildData();
- toast(`Энэхүү анхаарал хандуулах чиглэлийг хөгжүүлэхийн тулд шинэ зорилго нэмэгдлээ!`);
-}
-
-function getAgeData(ageVal){
- let age=Math.max(5,Math.min(16,+ageVal||10));
- return ageData[age]||ageData[10];
-}
-
 function renderRecommendations(){
  const data=getAgeData(child.age);
  const favCats=getFocusCats();
@@ -569,7 +555,7 @@ function renderGrowth(){
  document.getElementById("homePercent").textContent=p+"%";document.getElementById("homeBar").style.width=p+"%";
  const msg=document.getElementById("completionMessage");
  if(p>=100){
-   msg.className="completion";msg.innerHTML=`<span class="spark s1">✦</span><span class="spark s2">✧</span><span class="spark s3">✦</span><span class="spark s4">✧</span><h2>🎉 Сайн байна, ${child.name}!</h2><p>Та энэ долоо хоногийн гэр бүлийн өсөлтийн төлөвлөгөөгөө биелүүллээ.</p><button class="primary" onclick="startNewCycle()">Дараагийн долоо хоногийг эхлэх</button>`;
+   msg.className="completion";msg.innerHTML=`<span class="spark s1">✦</span><span class="spark s2">✧</span><span class="spark s3">✦</span><span class="spark s4">✧</span><h2>🎉 Сайн байна, ${child.name}!</h2><p>Та энэ долоо хоногийн гэр бүлийн өсөлтийн төлөвлөгөөгөө биелүүлээ.</p><button class="primary" onclick="startNewCycle()">Дараагийн долоо хоногийг эхлэх</button>`;
  }else msg.className="hidden";
  const growthCount=goals.filter(g=>g.done).length+achievements.length;
  const stage=growthCount<3?"🌱":growthCount<7?"🌿":growthCount<14?"🌳":"🌳";
