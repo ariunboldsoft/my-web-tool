@@ -1,20 +1,21 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="mn">
 <head>
-<script>
-   if (localStorage.getItem('isAuthenticated') !== 'true' || !localStorage.getItem('currentUserPhone')) {
+  <script>
+    if (localStorage.getItem('isAuthenticated') !== 'true' || !localStorage.getItem('currentUserPhone')) {
       window.location.href = 'auth.html';
     }
     const currentPhone = localStorage.getItem('currentUserPhone');
   </script>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ӨСӨХҮЙ | Хүүхдийн Хөгжлийн Хянагч</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
-<div class="app">
+  <div class="app">
     <div class="user-header">
       <div>
         <h3>Утас: <span id="display-phone"></span></h3>
@@ -22,45 +23,30 @@
       <button class="logout-btn" onclick="logout()">Гарах</button>
     </div>
 
-    <!-- Dynamic Container: Changes based on whether the user has a saved profile -->
-    <div id="profile-container">
-      <!-- Content injected via app.js -->
+    <!-- Main Dashboard container populated by app.js -->
+    <div class="dashboard">
+      <h2>Хүүхдийн профайл ба бүртгэл</h2>
+      
+      <div class="form-group">
+        <label for="childName">Хүүхдийн нэр:</label>
+        <input type="text" id="childName" placeholder="Жишээ: Тэмүүлэн">
+      </div>
+
+      <div class="form-group">
+        <label for="childAge">Нас / Төрсөн огноо:</label>
+        <input type="text" id="childAge" placeholder="Жишээ: 5 настай">
+      </div>
+
+      <div class="form-group">
+        <label for="childNotes">Хөгжлийн тэмдэглэл:</label>
+        <textarea id="childNotes" rows="5" placeholder="Энд хүүхдийнхээ хөгжил, явцын талаар бичнэ үү..."></textarea>
+      </div>
+
+      <button onclick="saveUserData(false)">Хадгалах</button>
     </div>
   </div>
-<script src="app.js"></script>
-    
-  <script>
-    // Display the current phone number
-    document.getElementById('display-phone').textContent = currentPhone;
 
-    // Unique storage keys based on the user's phone number
-    const nameKey = 'profile_name_' + currentPhone;
-    const notesKey = 'profile_notes_' + currentPhone;
-
-    // Load saved data specific to this phone number on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('username').value = localStorage.getItem(nameKey) || '';
-      document.getElementById('userNotes').value = localStorage.getItem(notesKey) || '';
-    });
-
-    // Save data tied strictly to this phone number
-    function saveUserData() {
-      const nameVal = document.getElementById('username').value;
-      const notesVal = document.getElementById('userNotes').value;
-
-      localStorage.setItem(nameKey, nameVal);
-      localStorage.setItem(notesKey, notesVal);
-
-      alert('Мэдээлэл амжилттай хадгалагдлаа!');
-    }
-
-    // Logout function
-    function logout() {
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('currentUserPhone');
-      window.location.href = 'auth.html';
-    }
-  </script>
+  <script src="app.js"></script>
     
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
