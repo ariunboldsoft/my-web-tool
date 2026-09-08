@@ -2,13 +2,114 @@
 <html lang="mn">
 <head>
   <meta charset="UTF-8">
-  <title>Системд нэвтрэх</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Өсөхүй | Тавтай морилно уу</title>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #f0f4f8 0%, #d9eecf 100%);
+      color: #243247;
+    }
+
+    .auth-card {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(45, 65, 90, 0.12);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .auth-card h2 {
+      margin-top: 0;
+      color: #416fa9;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .auth-card p {
+      color: #718096;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #4a5568;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      box-sizing: border-box;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 2px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #5b8fd1;
+    }
+
+    button {
+      background: #5b8fd1;
+      color: white;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(91, 143, 209, 0.3);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      background: #416fa9;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .error {
+      color: #e53e3e;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
   <div class="auth-card">
-    <h2>Системд нэвтрэх</h2>
+    <h2>ӨСӨХҮЙ</h2>
+    <p>Хүүхдийн хөгжлийн хянагч систем</p>
     
     <div class="input-group">
       <label for="phone">Утасны дугаар (8 оронтой)</label>
@@ -17,30 +118,16 @@
 
     <div class="input-group">
       <label for="code">Баталгаажуулах код (4 оронтой)</label>
-      <input type="text" id="code" maxlength="4" placeholder="Код">
+      <input type="text" id="code" maxlength="4" placeholder="••••">
     </div>
 
-    <button onclick="verifyAuth()">Нэвтрэх</button>
-    <div id="error-msg" class="error" style="display:none; color:red; margin-top:10px;">Утасны дугаар эсвэл код буруу байна.</div>
-
-    <div class="helper-box" style="margin-top:20px; font-size:13px; color:#666;">
-      Таны код: <strong id="preview-code">----</strong>
-    </div>
+    <button onclick="verifyAuth()">Системд орох</button>
+    <div id="error-msg" class="error">Утасны дугаар эсвэл код буруу байна.</div>
   </div>
 
   <script>
-    // Live preview generator as you type the phone number
-    const phoneInput = document.getElementById('phone');
-    phoneInput.addEventListener('input', () => {
-      const phone = phoneInput.value.trim();
-      if (phone.length === 8) {
-        document.getElementById('preview-code').textContent = generateCodeFromPhone(phone);
-      } else {
-        document.getElementById('preview-code').textContent = '----';
-      }
-    });
-
     function generateCodeFromPhone(phone) {
+      if (phone.length !== 8) return null;
       let part1 = parseInt(phone.substring(0, 4));
       let part2 = parseInt(phone.substring(4, 8));
       let generated = (part1 + part2) % 9000 + 1000; 
@@ -48,22 +135,24 @@
     }
 
     function verifyAuth() {
-      const phone = phoneInput.value.trim();
+      const phone = document.getElementById('phone').value.trim();
       const enteredCode = document.getElementById('code').value.trim();
+      const errorMsg = document.getElementById('error-msg');
 
       if (phone.length !== 8) {
-        document.getElementById('error-msg').style.display = 'block';
+        errorMsg.style.display = 'block';
         return;
       }
 
       const expectedCode = generateCodeFromPhone(phone);
 
       if (enteredCode === expectedCode) {
+        errorMsg.style.display = 'none';
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('currentUserPhone', phone);
         window.location.href = 'index.html';
       } else {
-        document.getElementById('error-msg').style.display = 'block';
+        errorMsg.style.display = 'block';
       }
     }
   </script>
