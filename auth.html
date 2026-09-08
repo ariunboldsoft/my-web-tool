@@ -2,17 +2,8 @@
 <html lang="mn">
 <head>
   <meta charset="UTF-8">
-  <title>Баталгаажуулалт</title>
-  <style>
-    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f6f8; }
-    .auth-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-    .input-group { margin-bottom: 15px; text-align: left; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #333; }
-    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; text-align: center; letter-spacing: 2px; }
-    button { background: #4a90e2; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-    button:hover { background: #357abd; }
-    .error { color: #d9534f; font-size: 14px; margin-top: 10px; display: none; }
-  </style>
+  <title>Системд нэвтрэх</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -30,14 +21,26 @@
     </div>
 
     <button onclick="verifyAuth()">Нэвтрэх</button>
-    <div id="error-msg" class="error">Утасны дугаар эсвэл код буруу байна.</div>
+    <div id="error-msg" class="error" style="display:none; color:red; margin-top:10px;">Утасны дугаар эсвэл код буруу байна.</div>
+
+    <div class="helper-box" style="margin-top:20px; font-size:13px; color:#666;">
+      Таны код: <strong id="preview-code">----</strong>
+    </div>
   </div>
 
   <script>
-    // Formula to automatically generate a 4-digit code from the 8-digit phone number
+    // Live preview generator as you type the phone number
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', () => {
+      const phone = phoneInput.value.trim();
+      if (phone.length === 8) {
+        document.getElementById('preview-code').textContent = generateCodeFromPhone(phone);
+      } else {
+        document.getElementById('preview-code').textContent = '----';
+      }
+    });
+
     function generateCodeFromPhone(phone) {
-      if (phone.length !== 8) return null;
-      // Splits the 8 digits into two halves, adds them, and ensures a 4-digit result
       let part1 = parseInt(phone.substring(0, 4));
       let part2 = parseInt(phone.substring(4, 8));
       let generated = (part1 + part2) % 9000 + 1000; 
@@ -45,7 +48,7 @@
     }
 
     function verifyAuth() {
-      const phone = document.getElementById('phone').value.trim();
+      const phone = phoneInput.value.trim();
       const enteredCode = document.getElementById('code').value.trim();
 
       if (phone.length !== 8) {
@@ -53,12 +56,11 @@
         return;
       }
 
-      // Calculate the correct 4-digit code dynamically using the formula
       const expectedCode = generateCodeFromPhone(phone);
 
       if (enteredCode === expectedCode) {
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userPhone', phone);
+        localStorage.setItem('currentUserPhone', phone);
         window.location.href = 'index.html';
       } else {
         document.getElementById('error-msg').style.display = 'block';
