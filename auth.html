@@ -2,112 +2,122 @@
 <html lang="mn">
 <head>
   <meta charset="UTF-8">
-  <title>Өсөхүй | Тавтай морилно уу</title>
+  <title>Өсөхүй | Хүүхдийн Хөгжлийн Хянагч</title>
   <style>
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes cardEntrance {
+      0% { opacity: 0; transform: translateY(20px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     body {
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+      color: #2d3748;
+      height: 100vh;
+      margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #f0f4f8 0%, #d9eecf 100%);
-      color: #243247;
     }
 
     .auth-card {
-      background: #fff;
-      padding: 40px 30px;
-      border-radius: 20px;
-      box-shadow: 0 12px 35px rgba(45, 65, 90, 0.12);
+      background: #ffffff;
+      padding: 40px 35px;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       text-align: center;
-      animation: fadeIn 0.8s ease-out;
+      animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .auth-card h2 {
-      margin-top: 0;
-      color: #416fa9;
-      font-size: 24px;
-      margin-bottom: 8px;
+    .logo-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
     }
 
-    .auth-card p {
+    h2 {
+      color: #2b6cb0;
+      margin: 0 0 5px 0;
+      font-size: 26px;
+    }
+
+    p {
       color: #718096;
       font-size: 14px;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
 
     .input-group {
-      margin-bottom: 18px;
       text-align: left;
+      margin-bottom: 20px;
     }
 
     label {
       display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
       font-size: 13px;
+      font-weight: 600;
       color: #4a5568;
+      margin-bottom: 8px;
     }
 
     input {
       width: 100%;
-      padding: 14px;
+      padding: 14px 16px;
       border: 2px solid #e2e8f0;
-      border-radius: 10px;
+      border-radius: 12px;
       box-sizing: border-box;
       font-size: 16px;
       text-align: center;
       letter-spacing: 2px;
-      transition: border-color 0.3s;
+      background: #f8fafc;
+      transition: all 0.2s ease;
     }
 
     input:focus {
       outline: none;
-      border-color: #5b8fd1;
+      border-color: #4299e1;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.15);
     }
 
     button {
-      background: #5b8fd1;
+      background: #48bb78;
       color: white;
       border: none;
       padding: 14px;
       width: 100%;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 16px;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+      transition: all 0.2s ease;
       margin-top: 10px;
-      box-shadow: 0 4px 12px rgba(91, 143, 209, 0.3);
-      transition: background 0.2s, transform 0.1s;
     }
 
     button:hover {
-      background: #416fa9;
+      background: #38a169;
+      transform: translateY(-1px);
     }
 
     button:active {
-      transform: scale(0.98);
+      transform: translateY(1px);
     }
 
     .error {
       color: #e53e3e;
       font-size: 13px;
-      margin-top: 12px;
+      margin-top: 15px;
       display: none;
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
 
   <div class="auth-card">
+    <div class="logo-icon">🌱</div>
     <h2>ӨСӨХҮЙ</h2>
     <p>Хүүхдийн хөгжлийн хянагч систем</p>
     
@@ -121,11 +131,52 @@
       <input type="text" id="code" maxlength="4" placeholder="••••">
     </div>
 
-    <button onclick="verifyAuth()">Системд орох</button>
+    <button onclick="verifyAuth()">Нэвтрэх</button>
     <div id="error-msg" class="error">Утасны дугаар эсвэл код буруу байна.</div>
   </div>
 
   <script>
+    // Built-in Web Audio API sound effects (no external files needed!)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'click') {
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      } else if (type === 'success') {
+        // Joyful success chime sequence
+        const now = audioCtx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
+          let o = audioCtx.createOscillator();
+          let g = audioCtx.createGain();
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          o.frequency.setValueAtTime(freq, now + index * 0.08);
+          g.gain.setValueAtTime(0.08, now + index * 0.08);
+          g.gain.exponentialRampToValueAtTime(0.001, now + index * 0.08 + 0.3);
+          o.start(now + index * 0.08);
+          o.stop(now + index * 0.08 + 0.3);
+        });
+      }
+    }
+
+    // Attach click/typing sounds
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', () => playSound('click'));
+    });
+
     function generateCodeFromPhone(phone) {
       if (phone.length !== 8) return null;
       let part1 = parseInt(phone.substring(0, 4));
@@ -135,6 +186,7 @@
     }
 
     function verifyAuth() {
+      playSound('click');
       const phone = document.getElementById('phone').value.trim();
       const enteredCode = document.getElementById('code').value.trim();
       const errorMsg = document.getElementById('error-msg');
@@ -148,9 +200,14 @@
 
       if (enteredCode === expectedCode) {
         errorMsg.style.display = 'none';
+        playSound('success'); // Play the chime
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('currentUserPhone', phone);
-        window.location.href = 'index.html';
+        
+        // Brief delay so the user hears the chime before redirection
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 600);
       } else {
         errorMsg.style.display = 'block';
       }
