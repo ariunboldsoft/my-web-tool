@@ -5,8 +5,76 @@
     if (localStorage.getItem('isAuthenticated') !== 'true') {
       window.location.href = 'auth.html';
     }
+    const currentPhone = localStorage.getItem('currentUserPhone');
   </script>
- <meta charset="UTF-8">
+<meta charset="UTF-8">
+  <title>Өсөхүй - Профайл</title>
+  <style>
+    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f4f6f8; color: #333; margin: 0; padding: 20px; }
+    .app { max-width: 600px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .user-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+    input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button { background: #4a90e2; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #357abd; }
+    .logout-btn { background: #d9534f; }
+    .logout-btn:hover { background: #c9302c; }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <div class="user-header">
+      <div>
+        <h3>Хэрэглэгч: <span id="display-phone"></span></h3>
+      </div>
+      <button class="logout-btn" onclick="logout()">Гарах</button>
+    </div>
+
+    <h2>Миний Профайл ба Мэдээлэл</h2>
+    
+    <label for="username">Хүүхдийн нэр / Профайлын нэр:</label>
+    <input type="text" id="username" placeholder="Нэр оруулах">
+
+    <label for="userNotes">Тэмдэглэл эсвэл явц:</label>
+    <textarea id="userNotes" rows="4" placeholder="Энд мэдээллээ бичнэ үү..."></textarea>
+
+    <button onclick="saveUserData()">Хадгалах</button>
+  </div>
+
+  <script>
+    // Display the current phone number
+    document.getElementById('display-phone').textContent = currentPhone;
+
+    // Unique storage keys based on the user's phone number
+    const nameKey = 'profile_name_' + currentPhone;
+    const notesKey = 'profile_notes_' + currentPhone;
+
+    // Load saved data specific to this phone number on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('username').value = localStorage.getItem(nameKey) || '';
+      document.getElementById('userNotes').value = localStorage.getItem(notesKey) || '';
+    });
+
+    // Save data tied strictly to this phone number
+    function saveUserData() {
+      const nameVal = document.getElementById('username').value;
+      const notesVal = document.getElementById('userNotes').value;
+
+      localStorage.setItem(nameKey, nameVal);
+      localStorage.setItem(notesKey, notesVal);
+
+      alert('Мэдээлэл амжилттай хадгалагдлаа!');
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('currentUserPhone');
+      window.location.href = 'auth.html';
+    }
+  </script>
+    
+    <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ӨСӨХҮЙ| Хүүхдийн Хөгжлийн Хянагч</title>
 <style>
