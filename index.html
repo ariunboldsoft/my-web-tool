@@ -12,24 +12,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div class="app">
+<div class="app">
     <div class="user-header">
       <div>
-        <h3>Хэрэглэгч: <span id="display-phone"></span></h3>
+        <h3>Утас: <span id="display-phone"></span></h3>
       </div>
       <button class="logout-btn" onclick="logout()">Гарах</button>
     </div>
 
-    <h2>Миний Профайл ба Мэдээлэл</h2>
-    
-    <label for="username">Хүүхдийн нэр / Профайлын нэр:</label>
-    <input type="text" id="username" placeholder="Нэр оруулах">
-
-    <label for="userNotes">Тэмдэглэл эсвэл явц:</label>
-    <textarea id="userNotes" rows="4" placeholder="Энд мэдээллээ бичнэ үү..."></textarea>
-
-    <button onclick="saveUserData()">Хадгалах</button>
+    <!-- Dynamic Container: Changes based on whether the user has a saved profile -->
+    <div id="profile-container">
+      <!-- Content injected via app.js -->
+    </div>
   </div>
 
   <script>
