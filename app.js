@@ -1,86 +1,43 @@
+// Display the current phone number on header
 document.getElementById('display-phone').textContent = currentPhone;
 
-// Unique storage key for this specific phone number
-const userStorageKey = 'user_data_' + currentPhone;
+// Unique storage keys bound strictly to this phone number
+const storageKey = 'child_profile_' + currentPhone;
 
-// Check if data already exists for this phone number
+// Load saved data on page startup
 window.addEventListener('DOMContentLoaded', () => {
-  loadUserDashboard();
+  const savedData = localStorage.getItem(storageKey);
+  if (savedData) {
+    try {
+      const data = JSON.parse(savedData);
+      document.getElementById('childName').value = data.name || '';
+      document.getElementById('childAge').value = data.age || '';
+      document.getElementById('childNotes').value = data.notes || '';
+    } catch (e) {
+      console.error('Data parsing error', e);
+    }
+  }
 });
 
-function loadUserDashboard() {
-  const container = document.getElementById('profile-container');
-  const savedDataRaw = localStorage.getItem(userStorageKey);
-
-  if (!savedDataRaw) {
-    // NEW USER: Show profile creation form
-    container.innerHTML = `
-      <h2>Шинэ профайл үүсгэх</h2>
-      <p>Энэ дугаар дээр бүртгэл үүсээгүй байна. Хүүхдийнхээ мэдээллийг оруулна уу.</p>
-      <label>Хүүхдийн нэр:</label>
-      <input type="text" id="childName" placeholder="Жишээ нь: Тэмүүлэн">
-      
-      <label>Нас / Төрсөн огноо:</label>
-      <input type="text" id="childAge" placeholder="Жишээ нь: 5 настай">
-
-      <button onclick="createProfile()">Профайл үүсгэх</button>
-    `;
-  } else {
-    // EXISTING USER: Load their saved data dashboard
-    const userData = JSON.parse(savedDataRaw);
-    container.innerHTML = `
-      <h2>Миний Хүүхдийн Профайл</h2>
-      
-      <label>Хүүхдийн нэр:</label>
-      <input type="text" id="childName" value="${userData.name || ''}">
-
-      <label>Нас / Төрсөн огноо:</label>
-      <input type="text" id="childAge" value="${userData.age || ''}">
-
-      <label>Хөгжлийн тэмдэглэл:</label>
-      <textarea id="childNotes" rows="4">${userData.notes || ''}</textarea>
-
-      <button onclick="saveUserData(false)">Хадгалах</button>
-    `;
-  }
-}
-
-function createProfile() {
-  const name = document.getElementById('childName').value.trim();
-  const age = document.getElementById('childAge').value.trim();
-
-  if (!name) {
-    alert('Хүүхдийн нэрийг оруулна уу.');
-    return;
-  }
-
-  const initialData = { name: name, age: age, notes: '' };
-  localStorage.setItem(userStorageKey, JSON.stringify(initialData));
-  loadUserDashboard(); // Reloads into the full dashboard view
-}
-
+// Save data function (handles manual and auto-saves)
 function saveUserData(isAutoSave = false) {
-  const nameInput = document.getElementById('childName');
-  const ageInput = document.getElementById('childAge');
-  const notesInput = document.getElementById('childNotes');
-
-  if (!nameInput) return;
-
-  const updatedData = {
-    name: nameInput.value,
-    age: ageInput ? ageInput.value : '',
-    notes: notesInput ? notesInput.value : ''
+  const data = {
+    name: document.getElementById('childName').value,
+    age: document.getElementById('childAge').value,
+    notes: document.getElementById('childNotes').value,
+    lastUpdated: new Date().toISOString()
   };
 
-  localStorage.setItem(userStorageKey, JSON.stringify(updatedData));
+  localStorage.setItem(storageKey, JSON.stringify(data));
 
   if (!isAutoSave) {
-    alert('Мэдээлэл амжилттай хадгалаgдлаа!');
+    alert('Мэдээлэл амжилттай хадгалагдлаа!');
   } else {
     showAutoSaveIndicator();
   }
 }
 
+// Subtle visual popup for autosaves
 function showAutoSaveIndicator() {
   let indicator = document.getElementById('autosave-indicator');
   if (!indicator) {
@@ -94,14 +51,15 @@ function showAutoSaveIndicator() {
   setTimeout(() => { indicator.style.opacity = '0'; }, 2000);
 }
 
-// Autosave every 60 seconds
+// Background autosave every 60 seconds
 setInterval(() => {
   saveUserData(true);
 }, 60000);
 
+// Logout function
 function logout() {
-  saveUserData(true);
-  sessionStorage.removeItem('isAuthenticated');
-  sessionStorage.removeItem('currentUserPhone');
+  saveUserData(true); // Final save before leaving
+  localStorage.removeItem('isAuthenticated');
+  localStorage.removeItem('currentUserPhone');
   window.location.href = 'auth.html';
 }
