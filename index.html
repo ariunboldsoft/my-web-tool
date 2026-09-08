@@ -689,5 +689,62 @@ function chime(type){
  }catch(e){}
 }
 </script>
+    <script>
+    if (sessionStorage.getItem('isAuthenticated') !== 'true') {
+      window.location.href = 'auth.html';
+    }
+    const currentPhone = sessionStorage.getItem('currentUserPhone');
+
+    document.getElementById('display-phone').textContent = currentPhone;
+
+    const nameKey = 'profile_name_' + currentPhone;
+    const notesKey = 'profile_notes_' + currentPhone;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('username').value = localStorage.getItem(nameKey) || '';
+      document.getElementById('userNotes').value = localStorage.getItem(notesKey) || '';
+    });
+
+    function saveUserData(isAutoSave = false) {
+      const nameVal = document.getElementById('username').value;
+      const notesVal = document.getElementById('userNotes').value;
+
+      localStorage.setItem(nameKey, nameVal);
+      localStorage.setItem(notesKey, notesVal);
+
+      if (!isAutoSave) {
+        alert('Мэдээлэл амжилттай хадгалагдлаа!');
+      } else {
+        showAutoSaveIndicator();
+      }
+    }
+
+    function showAutoSaveIndicator() {
+      let indicator = document.getElementById('autosave-indicator');
+      if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'autosave-indicator';
+        indicator.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#28a745; color:#fff; padding:8px 14px; border-radius:4px; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,0.2); transition:opacity 0.3s;';
+        document.body.appendChild(indicator);
+      }
+      indicator.textContent = 'Автоматаар хадгалагдлаа';
+      indicator.style.opacity = '1';
+      setTimeout(() => {
+        indicator.style.opacity = '0';
+      }, 2000);
+    }
+
+    // Automatically save every 60 seconds (1 minute)
+    setInterval(() => {
+      saveUserData(true);
+    }, 60000);
+
+    function logout() {
+      saveUserData(true);
+      sessionStorage.removeItem('isAuthenticated');
+      sessionStorage.removeItem('currentUserPhone');
+      window.location.href = 'auth.html';
+    }
+  </script>
 </body>
 </html>
