@@ -1,50 +1,72 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-  <script>
-    if (localStorage.getItem('isAuthenticated') !== 'true' || !localStorage.getItem('currentUserPhone')) {
-      window.location.href = 'auth.html';
-    }
-    const currentPhone = localStorage.getItem('currentUserPhone');
-  </script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ӨСӨХҮЙ | Хүүхдийн Хөгжлийн Хянагч</title>
+  <title>Системд нэвтрэх</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <div class="auth-card">
+    <h2>Системд нэвтрэх</h2>
     
-  <div class="app">
-    <div class="user-header">
-      <div>
-        <h3>Утас: <span id="display-phone"></span></h3>
-      </div>
-      <button class="logout-btn" onclick="logout()">Гарах</button>
+    <div class="input-group">
+      <label for="phone">Утасны дугаар (8 оронтой)</label>
+      <input type="text" id="phone" maxlength="8" placeholder="99112233">
     </div>
 
-    <!-- Main Dashboard container populated by app.js -->
-    <div class="dashboard">
-      <h2>Хүүхдийн профайл ба бүртгэл</h2>
-      
-      <div class="form-group">
-        <label for="childName">Хүүхдийн нэр:</label>
-        <input type="text" id="childName" placeholder="Жишээ: Тэмүүлэн">
-      </div>
+    <div class="input-group">
+      <label for="code">Баталгаажуулах код (4 оронтой)</label>
+      <input type="text" id="code" maxlength="4" placeholder="Код">
+    </div>
 
-      <div class="form-group">
-        <label for="childAge">Нас / Төрсөн огноо:</label>
-        <input type="text" id="childAge" placeholder="Жишээ: 5 настай">
-      </div>
+    <button onclick="verifyAuth()">Нэвтрэх</button>
+    <div id="error-msg" class="error" style="display:none; color:red; margin-top:10px;">Утасны дугаар эсвэл код буруу байна.</div>
 
-      <div class="form-group">
-        <label for="childNotes">Хөгжлийн тэмдэглэл:</label>
-        <textarea id="childNotes" rows="5" placeholder="Энд хүүхдийнхээ хөгжил, явцын талаар бичнэ үү..."></textarea>
-      </div>
-
-      <button onclick="saveUserData(false)">Хадгалах</button>
+    <div class="helper-box" style="margin-top:20px; font-size:13px; color:#666;">
+      Таны код: <strong id="preview-code">----</strong>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    // Live preview generator as you type the phone number
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', () => {
+      const phone = phoneInput.value.trim();
+      if (phone.length === 8) {
+        document.getElementById('preview-code').textContent = generateCodeFromPhone(phone);
+      } else {
+        document.getElementById('preview-code').textContent = '----';
+      }
+    });
+
+    function generateCodeFromPhone(phone) {
+      let part1 = parseInt(phone.substring(0, 4));
+      let part2 = parseInt(phone.substring(4, 8));
+      let generated = (part1 + part2) % 9000 + 1000; 
+      return generated.toString();
+    }
+
+    function verifyAuth() {
+      const phone = phoneInput.value.trim();
+      const enteredCode = document.getElementById('code').value.trim();
+
+      if (phone.length !== 8) {
+        document.getElementById('error-msg').style.display = 'block';
+        return;
+      }
+
+      const expectedCode = generateCodeFromPhone(phone);
+
+      if (enteredCode === expectedCode) {
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('currentUserPhone', phone);
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('error-msg').style.display = 'block';
+      }
+    }
+  </script>
+
 </body>
 </html>
